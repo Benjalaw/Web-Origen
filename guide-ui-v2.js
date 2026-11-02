@@ -53,7 +53,7 @@
           <div class="pro-hero-kicker"><span class="tag">${x.region}</span><span class="pro-editorial-badge">Guía ORIGEN · Chile</span></div>
           <h1>${x.name}</h1>
           <p>${summary}</p>
-          <div class="pro-hero-actions"><a href="#planifica">Planificar visita</a>${sources[0]?`<a class="secondary" href="${sources[0].url}" target="_blank" rel="noopener">Fuente oficial ↗</a>`:''}</div>
+          <div class="pro-hero-actions"><a href="#/lugar/${id}" data-guide-target="planifica">Planificar visita</a>${sources[0]?`<a class="secondary" href="${sources[0].url}" target="_blank" rel="noopener">Fuente oficial ↗</a>`:''}</div>
         </div>
       </section>
 
@@ -63,7 +63,7 @@
         <div class="wrap pro-guide-layout">
           <main class="pro-guide-main">
             <nav class="pro-section-nav" aria-label="Secciones de la guía">
-              <a href="#contexto">Contexto</a>${highlights?'<a href="#imperdibles">Imperdibles</a>':''}<a href="#datos">Datos</a><a href="#planifica">Planifica</a><a href="#consejos">Antes de ir</a><a href="#fuentes">Fuentes</a>
+              <a href="#/lugar/${id}" data-guide-target="contexto">Contexto</a>${highlights?'<a href="#/lugar/${id}" data-guide-target="imperdibles">Imperdibles</a>':''}<a href="#/lugar/${id}" data-guide-target="datos">Datos</a><a href="#/lugar/${id}" data-guide-target="planifica">Planifica</a><a href="#/lugar/${id}" data-guide-target="consejos">Antes de ir</a><a href="#/lugar/${id}" data-guide-target="fuentes">Fuentes</a>
             </nav>
 
             <section class="pro-intro-card"><span class="eyebrow">En pocas palabras</span><p>${summary}</p></section>
@@ -107,6 +107,12 @@
           </aside>
         </div>
       </section>`;
+
+    app.querySelectorAll('[data-guide-target]').forEach(btn=>btn.addEventListener('click',e=>{
+      e.preventDefault();
+      const target=document.getElementById(btn.dataset.guideTarget);
+      if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
   };
 
   if(location.hash.startsWith('#/lugar/')) route();
