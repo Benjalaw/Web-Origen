@@ -1,8 +1,9 @@
 (()=>{
 const boot=()=>{
- const form=document.querySelector('#ori-form'),input=document.querySelector('#ori-input'),messages=document.querySelector('#ori-messages'),quick=document.querySelector('.ori-quick');
+ const form=document.querySelector('#ori-form'),input=document.querySelector('#ori-input'),messages=document.querySelector('#ori-messages'),quick=document.querySelector('.ori-quick'),launcher=document.querySelector('#ori-launcher');
  if(!form||!input||!messages||form.dataset.personalityReady)return;
  form.dataset.personalityReady='1';
+ const subtitle=document.querySelector('.ori-chat-title span');if(subtitle)subtitle.textContent='Guía de viaje y compañero de ORIGEN';
  const baseSubmit=form.onsubmit;
  const N=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ]+/gi,' ').replace(/\s+/g,' ').trim();
  const E=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -29,6 +30,8 @@ const boot=()=>{
   if(hasAny(n,['por que tienes un panuelo','pañuelo azul','panuelo azul']))return`El <b>pañuelo azul</b> representa el agua y el Pacífico, mientras el verde de mi mochila conecta con bosques y naturaleza. Mi cuerpo claro recuerda roca, montaña y cordillera.`;
   if(hasAny(n,['cual es tu mision','para que existes']))return`Mi misión es hacer que descubrir Chile sea más fácil y entretenido: ayudarte a encontrar un destino, entender su historia, organizar la ruta y encontrar servicios confiables cuando ya estás viajando.`;
   if(hasAny(n,['cuentame tu historia','historia de ori']))return`Cuenta la historia que ORI apareció recorriendo un sendero entre la cordillera y el bosque, con una mochila demasiado grande y muchas ganas de saber qué había detrás de cada cerro. Desde entonces se convirtió en el guardián viajero de <b>ORIGEN</b>: pequeño, curioso y siempre listo para señalar el próximo camino. 🌿🏔️`;
+  if(hasAny(n,['que haces','que estas haciendo','te gusta viajar','cuales son tus hobbies']))return`Me gusta explorar, aprender historias de lugares, mirar mapas y buscar buenas paradas en el camino 😄. Si no estoy armando una ruta, probablemente estoy pensando cuál sería el próximo mirador al que subir.`;
+  if(hasAny(n,['te gusta chile','que opinas de chile']))return`Muchísimo 🌿. Chile cambia de paisaje a cada rato: desierto, costa, valles, volcanes, bosques, islas y Patagonia. Esa variedad es justamente lo que representa ORIGEN y por lo que siempre tengo algún lugar nuevo que recomendar.`;
   if(hasAny(n,['gracias','muchas gracias','te pasaste']))return`¡De nada! 🌿 Me gusta ayudar. Cuando quieras seguimos armando la ruta, buscando un lugar para comer o simplemente conversando.`;
   if(hasAny(n,['chao','adios','nos vemos','hasta luego']))return`¡Nos vemos! 👋🌿 Que tengas buen camino. Cuando vuelvas, acá voy a estar con la mochila lista.`;
   if(hasAny(n,['hola ori','hola','holi','buenas','hey ori']))return`¡Hola! 👋🌿 Soy <b>ORI</b>. Puedes preguntarme por viajes y destinos, pero también por ORIGEN, mi historia o simplemente conversar un rato conmigo.`;
@@ -36,6 +39,7 @@ const boot=()=>{
  }
  form.onsubmit=e=>{const q=input.value,reply=personality(q);if(reply){e.preventDefault();if(!q.trim())return;add(E(q),'user');input.value='';setTimeout(()=>add(reply,'bot'),70);return;}if(typeof baseSubmit==='function')return baseSubmit.call(form,e);};
  if(quick&&!quick.querySelector('[data-about-ori]')){const b=document.createElement('button');b.type='button';b.dataset.aboutOri='1';b.textContent='Conoce a ORI';b.onclick=()=>{input.value='¿Quién eres?';form.requestSubmit();};quick.appendChild(b);}
+ if(launcher)launcher.addEventListener('click',()=>setTimeout(()=>{if(messages.children.length===1){messages.firstElementChild.innerHTML='¡Hola! Soy <b>ORI</b> 🌿 Tu compañero dentro de ORIGEN. Puedo ayudarte con viajes, rutas y servicios, pero también puedes preguntarme por la página, mi historia o simplemente venir a conversar 😄.';}},25));
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,30));else setTimeout(boot,30);
 })();
