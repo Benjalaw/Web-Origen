@@ -12,4 +12,6 @@ category=function(c){
  const draw=()=>{const nq=norm(q.value),region=r.value;const list=items.filter(x=>{const hay=norm([x.name,x.region,x.lead,x.story,(x.interests||[]).join(' '),(x.facts||[]).join(' ')].join(' '));return(!nq||hay.includes(nq))&&(!region||x.region===region);});count.textContent=`${list.length} ${list.length===1?'destino':'destinos'}`;out.innerHTML=list.map(x=>`<a class="card place-card" href="#/lugar/${x.id}">${media(x.image,x.name)}<div class="card-body"><span class="tag">${escapeHtml(x.region)}</span><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.lead)}</p><span class="go">Abrir guía →</span></div></a>`).join('')||'<div class="finder-empty"><h3>No hay coincidencias</h3><p>Prueba una búsqueda más amplia o revisa Explorar.</p></div>';};
  q.oninput=draw;r.oninput=draw;document.querySelector('#cclear').onclick=()=>{q.value='';r.value='';draw();};draw();scrollTo(0,0);
 };
+const current=location.hash.slice(2).split('/')[0];
+if(cats[current])setTimeout(()=>category(current),0);
 })();
