@@ -18,11 +18,16 @@ const boot=()=>{
 
  const FAQ=[
   {id:'instagram',words:['instagram','insta','ig','red social','redes sociales','pagina de instagram','cuenta de instagram','usuario de instagram','perfil de instagram','tuorigen'],min:2,reply:()=>`El Instagram de ORIGEN es ${link('https://instagram.com/tuorigen.cl','@tuorigen.cl')} 📸. Ahí publicamos destinos, historias, rutas y contenido turístico de Chile.`},
+  {id:'other-socials',words:['facebook','tiktok','linkedin','youtube','twitter','x de origen','otras redes'],min:2,reply:()=>`La red social pública enlazada actualmente desde ORIGEN es <b>Instagram: @tuorigen.cl</b>. Si se incorporan otras redes, aparecerán directamente en la página.`},
   {id:'web',words:['pagina web','sitio web','web de origen','link de origen','url','direccion web','pagina de origen'],min:2,reply:()=>`La web de ORIGEN es ${link('https://benjalaw.github.io/Web-Origen/','ORIGEN')}. Desde ahí puedes usar Explorar, Servicios, Volcanes y hablar conmigo.`},
   {id:'what-origin',words:['que es origen','que es esta pagina','de que trata','para que sirve origen','proyecto origen','origen turismo'],min:3,reply:()=>`<b>ORIGEN</b> es una guía turística digital de Chile. Reúne destinos, volcanes, rutas, servicios turísticos y herramientas de planificación. La idea es mostrar no solo dónde ir, sino <b>qué hace especial a cada lugar y cómo vivirlo mejor</b>.`},
-  {id:'how-page',words:['como funciona','como usar','como uso','navegar','que puedo hacer','donde busco','como buscar'],min:2,reply:()=>`Puedes usar <a href="#/explorar"><b>Explorar</b></a> para buscar destinos por región e intereses, <a href="#/servicios"><b>Servicios</b></a> para hoteles, restaurantes, bares y experiencias, y <a href="#/volcanes"><b>Volcanes</b></a> para turismo volcánico. También puedes escribirme directamente lo que necesitas.`},
+  {id:'what-can-do',words:['que puedes hacer','que sabes hacer','como me puedes ayudar','en que ayudas','para que sirves','funciones de ori'],min:2,reply:()=>`Puedo ayudarte a <b>descubrir destinos, comparar zonas, planificar rutas, armar itinerarios, buscar hoteles/restaurantes/bares, explicar ORIGEN</b> y responder preguntas sobre mí. También puedo conversar de forma básica aunque no estés planificando un viaje.`},
+  {id:'how-page',words:['como funciona','como usar','como uso','navegar','que puedo hacer en la pagina','donde busco','como buscar'],min:2,reply:()=>`Puedes usar <a href="#/explorar"><b>Explorar</b></a> para buscar destinos por región e intereses, <a href="#/servicios"><b>Servicios</b></a> para hoteles, restaurantes, bares y experiencias, y <a href="#/volcanes"><b>Volcanes</b></a> para turismo volcánico. También puedes escribirme directamente lo que necesitas.`},
   {id:'services',words:['servicios','hoteles','hotel','restaurantes','restaurante','bares','bar','cafes','cafeterias','donde dormir','donde comer','donde salir'],min:2,reply:(n)=>{if(any(n,['donde','seccion','pagina','buscar','encuentro']))return`En <a href="#/servicios"><b>Servicios</b></a> puedes escribir una ciudad y filtrar alojamiento, restaurantes, bares, cafés y experiencias. Cuando hay respaldo SERNATUR lo indicamos claramente.`;return'';}},
   {id:'sernatur',words:['sernatur','registro turistico','prestador','prestadores','registro de turismo'],min:2,reply:()=>`ORIGEN usa el registro de prestadores de <b>SERNATUR</b> como una de sus fuentes para servicios turísticos. Cuando un negocio está verificado o listado lo marcamos; una recomendación por reputación no se presenta como registro oficial.`},
+  {id:'booking',words:['puedes reservar','puedo reservar','hacer reserva','reservar hotel','reservar restaurante','comprar entrada','comprar ticket'],min:2,reply:()=>`Por ahora ORI <b>no realiza reservas ni compras directamente</b>. Sí puedo ayudarte a elegir una opción y llevarte a su fuente, ficha o mapa para continuar la reserva por el canal correspondiente.`},
+  {id:'live-data',words:['tiempo real','clima en vivo','precios en vivo','precio actual','disponibilidad actual','horarios actuales','trafico en vivo','cierres actuales'],min:2,reply:()=>`No consulto en vivo tráfico, clima, precios, horarios, cupos ni cierres desde esta versión de la web. Cuando un dato puede cambiar, te lo marco como orientativo y conviene confirmarlo en la fuente oficial.`},
+  {id:'contact',words:['contacto','correo','email','mail','como contacto','como contactar','hablar con origen'],min:2,reply:()=>`El canal público visible actualmente para contactar o seguir ORIGEN es Instagram: ${link('https://instagram.com/tuorigen.cl','@tuorigen.cl')}.`},
   {id:'slogan',words:['slogan','lema','frase de origen','frase de la pagina'],min:2,reply:()=>`El lema de ORIGEN es <b>“Descubre tu destino desde su ORIGEN”</b>.`},
   {id:'meaning-origin',words:['que significa origen','por que se llama origen','significado de origen','nombre origen'],min:3,reply:()=>`El nombre <b>ORIGEN</b> representa conocer un destino desde su esencia: paisaje, historia, cultura, personas y territorio. De ahí nace el lema “Descubre tu destino desde su ORIGEN”.`},
   {id:'colors',words:['colores','paleta','color de origen','colores de origen','verde azul blanco'],min:2,reply:()=>`La identidad visual de ORIGEN usa principalmente <b>blanco</b>, <b>verde oscuro</b> y <b>azul</b>. El verde representa naturaleza y territorio; el azul conecta con agua, cielo y Pacífico.`},
@@ -49,7 +54,7 @@ const boot=()=>{
   {id:'hello',words:['hola','holi','buenas','hey','ola','hola ori'],min:2,reply:()=>`¡Hola! 👋🌿 Soy <b>ORI</b>. Puedes preguntarme por viajes, ORIGEN, servicios, mi historia o simplemente conversar conmigo.`}
  ];
 
- const generalChile=(n)=>{
+ const generalChile=n=>{
   if(has(n,'capital','chile'))return'La capital de Chile es <b>Santiago</b>.';
   if(any(n,['moneda de chile','que moneda usan en chile','moneda chilena']))return'La moneda oficial de Chile es el <b>peso chileno (CLP)</b>.';
   if(any(n,['idioma de chile','que idioma hablan en chile']))return'El idioma predominante en Chile es el <b>español</b>, además de diversas lenguas originarias presentes en distintos territorios.';
@@ -64,7 +69,7 @@ const boot=()=>{
   if(best){const r=best.reply(n);if(r)return r;}
   const chile=generalChile(n);if(chile)return chile;
   const question=/^(que|quien|quienes|cual|cuales|como|cuando|donde|por que|porque|puedes|sabes|tienes|eres|te|hay)\b/.test(n)||n.includes('?');
-  const clearlyTravel=any(n,['viaje','viajar','ruta','destino','trekking','hotel','restaurante','bar','volcan','playa','termas','region','dias','desde','hasta','pucón','pucon','santiago','concepcion','chile']);
+  const clearlyTravel=any(n,['viaje','viajar','ruta','destino','trekking','hotel','restaurante','bar','volcan','playa','termas','region','dias','desde','hasta','pucon','santiago','concepcion','chile']);
   if(question&&!clearlyTravel)return`No tengo una respuesta específica guardada para eso todavía 😅. Puedo conversar sobre <b>ORIGEN, mi historia, Chile, viajes y servicios turísticos</b>. Si es algo sobre la página, pregúntamelo de otra forma y trataré de entenderlo.`;
   return'';
  }
