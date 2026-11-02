@@ -1,0 +1,1 @@
+(()=>{const T=window.ORI_TRAVEL;if(!T||!T.cities||!T.places)return;for(const x of window.ORIGEN_EXTRA_PLACES||[]){if(T.places[x.id])continue;const c=T.cities[x.baseCity];if(c)T.places[x.id]={lat:c.lat,lon:c.lon,base:x.baseCity,note:'Coordenadas referenciales de la ciudad/base turística; confirma el acceso exacto al atractivo antes de viajar.'};}})();
