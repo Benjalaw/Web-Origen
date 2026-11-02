@@ -79,10 +79,18 @@ window.ORIGEN_IMAGE_ERROR=(img,id)=>{
   const candidates=[p?.imageFallback,p?.imagePlaceholder].filter(Boolean);
   const next=candidates.find(x=>!tried.includes(x)&&x!==img.getAttribute('src'));
   if(next){
-    tried.push(next);img.dataset.fallbackTried=tried.join('|');img.style.display='';img.src=next;return;
+    tried.push(next);img.dataset.fallbackTried=tried.join('|');img.style.display='';img.parentElement?.classList.remove('media-fallback');img.src=next;return true;
   }
-  img.style.display='none';img.parentElement?.classList.add('media-fallback');
+  img.style.display='none';img.parentElement?.classList.add('media-fallback');return false;
 };
+document.addEventListener('error',e=>{
+  const img=e.target;
+  if(!(img instanceof HTMLImageElement))return;
+  const p=(window.P||[]).find(x=>x.name===img.alt||x.image===img.getAttribute('src'));
+  if(!p)return;
+  e.stopImmediatePropagation();
+  window.ORIGEN_IMAGE_ERROR(img,p.id);
+},true);
 const targets=(window.P||[]).filter(p=>extras.has(p.id));
 for(const p of targets){
   if(MANUAL[p.id]){cache[p.id]=MANUAL[p.id];apply(p,MANUAL[p.id]);continue}
