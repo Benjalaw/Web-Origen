@@ -12,7 +12,21 @@ const MANUAL={
   'laguna-laja':WM('Volcan-Antuco-y-Sierra-Velluda.jpg'),
   'embalse-yeso':WM('Embalse el Yeso.jpg'),
   'volcan-osorno':WM('Aerosillas en el volcán Osorno.jpg'),
-  'valle-luna':WM('Valle de la Luna San Pedro de Atacama.jpg')
+  'valle-luna':WM('Valle de la Luna San Pedro de Atacama.jpg'),
+  'rapa-nui':WM('Ahu Tongariki (15 Moais).JPG'),
+  'petrohue':WM('Chile - Petrohué Waterfall.jpg'),
+  'general-carrera':WM('Capilla de Mármol y lago.jpg'),
+  'siete-tazas':WM('7 Tazas, Chile - panoramio.jpg'),
+  'peninsula-hualpen':WM('Hualpen (12603787025).jpg'),
+  'termas-chillan':WM('Termas de Chillán, Chile.jpg'),
+  'nonguen':WM('Vista Reserva Nonguén.jpg'),
+  'alerce-andino':WM('Alerce Andino National Park.jpg'),
+  'parque-chiloe':WM('Abtao desde La Ventana.jpg'),
+  'laguna-san-rafael':WM('Glaciar San Rafael.jpg'),
+  'caleta-tortel':WM('Pasarelas en Caleta Tortel - panoramio.jpg'),
+  'puyuhuapi':WM('Bahia de Puyuhuapi.jpg'),
+  'glaciar-grey':WM('View of Grey Glacier in Torres del Paine National Park, Chilean Patagonia.jpg'),
+  'hornopiren':WM('Caleta Hornopirén.jpg')
 };
 const NEGATIVE=/\b(map|mapa|logo|escudo|bandera|flag|seal|municipalidad|terminal|placa|sign|diagram|diagrama|ubicacion|location map|coat of arms|portrait|retrato|document|documento)\b/i;
 const clean=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
