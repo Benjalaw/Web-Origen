@@ -3,24 +3,30 @@ const SRC='https://chile.travel/buscador-global/?type=destinos';
 const existing=new Set((window.P||[]).map(x=>x.id));
 const xml=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[m]));
 const art=(name,cat,region)=>'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720"><rect width="1200" height="720" fill="#F4F1E8"/><path d="M0 540 245 300 430 470 655 180 910 455 1200 260V720H0Z" fill="#DDE8E1"/><path d="M0 615 280 420 455 540 690 310 965 560 1200 390" fill="none" stroke="#123D32" stroke-width="18"/><circle cx="1030" cy="150" r="72" fill="#D7E6F0"/><text x="72" y="105" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#2D7198">ORIGEN · ${xml(cat.toUpperCase())}</text><text x="72" y="575" font-family="Arial,sans-serif" font-size="52" font-weight="700" fill="#123D32">${xml(name)}</text><text x="72" y="630" font-family="Arial,sans-serif" font-size="28" fill="#38594E">${xml(region)}</text></svg>`);
-const cleanTag=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,',').replace(/^,+|,+$/g,'');
-const lock=id=>{let h=0;for(const c of id)h=(h*31+c.charCodeAt(0))>>>0;return h%100000};
-const photo=(id,name,region)=>`https://loremflickr.com/1200/720/${cleanTag(name)},${cleanTag(region)},chile,travel?lock=${lock(id)}`;
+const wm=file=>`https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(file)}?width=1400`;
+const categoryPhoto={
+  rutas:wm('Carretera Austral vista.jpg'),
+  costa:wm('Punta de lobos.jpg'),
+  bosques:wm('Lago Conguillio y Volcán Llaima.jpg'),
+  aventura:wm('Futaleufú.jpg')
+};
 const season={rutas:'Todo el año; revisa clima y condiciones de la ruta antes de salir.',costa:'Todo el año; primavera y verano suelen concentrar más servicios costeros.',bosques:'Todo el año, con barro, lluvia, nieve o cierres estacionales según el área protegida.',aventura:'Depende de la actividad y la temporada; confirma clima, accesos y operación local.'};
 const difficulty={rutas:'Baja a media según el recorrido.',costa:'Baja a media según playas, senderos y actividades.',bosques:'Baja a alta según el sendero elegido.',aventura:'Variable según la actividad; algunas experiencias requieren guía o experiencia previa.'};
 window.ORIGEN_EXTRA_PLACES=window.ORIGEN_EXTRA_PLACES||[];
 window.ORIGEN_EXTRA_ADD=rows=>{for(const [id,name,cat,region,lead,tags,baseCity] of rows){
   if(existing.has(id))continue;
   const interests=tags.split(';');
-  const fallbackImage=art(name,cat,region);
+  const placeholder=art(name,cat,region);
+  const fallbackImage=categoryPhoto[cat]||categoryPhoto.rutas;
   window.P.push({
     id,name,cat,region,lead,
     story:lead+' Es una alternativa para ampliar una ruta por '+region+' y combinar paisaje, cultura y actividades según la temporada.',
     facts:[region,interests.slice(0,2).join(' · '),'Verifica condiciones y servicios antes de viajar'],
     source:SRC,
     sourceLabel:'Chile Travel — buscador oficial de destinos',
-    image:photo(id,name,region),
+    image:fallbackImage,
     imageFallback:fallbackImage,
+    imagePlaceholder:placeholder,
     imageQuery:`${name}, ${region}, Chile`,
     interests,
     bestSeason:season[cat],
