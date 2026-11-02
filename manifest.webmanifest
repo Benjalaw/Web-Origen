@@ -1,0 +1,14 @@
+{
+  "name": "ORIGEN — Chile desde su origen",
+  "short_name": "ORIGEN",
+  "description": "Guía y planificador turístico de Chile con destinos, servicios, favoritos, itinerarios y herramientas de viaje.",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#123D32",
+  "lang": "es-CL",
+  "icons": [
+    {"src":"assets/origen-logo.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
+  ]
+}
