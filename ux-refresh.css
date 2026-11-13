@@ -1,0 +1,55 @@
+/* ORIGEN interface refresh: quieter navigation and faster access to travel actions. */
+#nav{gap:14px}
+#nav>a:not(.ig){font-size:.9rem}
+#nav .nav-trip{background:#123d32;color:#fff;padding:10px 15px;border-radius:999px}
+.nav-more{position:relative;font-weight:750;font-size:.92rem}
+.nav-more>summary{list-style:none;cursor:pointer;padding:10px 12px;border-radius:999px;color:#315247}
+.nav-more>summary::-webkit-details-marker{display:none}
+.nav-more>summary:after{content:"⌄";margin-left:7px;color:#71847b}
+.nav-more[open]>summary,.nav-more>summary:hover{background:#edf4f1;color:#123d32}
+.nav-more-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:190px;padding:8px;background:#fff;border:1px solid #dfe8e3;border-radius:16px;box-shadow:0 14px 34px rgba(18,61,50,.14);display:grid;gap:3px;z-index:30}
+.nav-more-menu a{padding:10px 12px;border-radius:10px;font-size:.88rem}
+.nav-more-menu a:hover{background:#f0f6f3;color:#123d32}
+#favorites-nav{font-weight:800;color:#245e4b}
+.nav-account{font-weight:800;padding:10px 14px;border-radius:999px;background:#eef5f1;color:#123d32}
+.auth-shell:has(.account-dashboard){max-width:1100px;grid-template-columns:minmax(0,1.5fr) minmax(230px,.7fr);gap:20px}
+.account-dashboard{display:grid;gap:20px}
+.account-welcome{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.account-welcome h2{font-size:clamp(1.65rem,3vw,2.25rem);margin:0 0 4px}
+.account-welcome p{margin:4px 0 0}
+.account-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.account-shortcut{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:16px;border:1px solid #dfe8e3;border-radius:18px;background:#fff;color:#173027;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.account-shortcut:hover{transform:translateY(-2px);border-color:#b6cbbf;box-shadow:0 12px 28px rgba(18,61,50,.09)}
+.account-shortcut-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#eaf3ee;color:#123d32;font-size:1.3rem}
+.account-shortcut b,.account-shortcut small{display:block}
+.account-shortcut b{color:#123d32;font-size:1rem}
+.account-shortcut small{margin-top:4px;color:#73837b;font-size:.78rem;line-height:1.35}
+.account-shortcut-arrow{font-size:1.25rem;color:#2d7198}
+.account-local-note{margin:0;padding:11px 13px;background:#f7faf8;border-radius:12px;color:#718078;font-size:.8rem}
+.account-settings{border-top:1px solid #e4ece7;padding-top:15px}
+.account-settings>summary{cursor:pointer;color:#315b4c;font-weight:800}
+.account-settings[open]>summary{margin-bottom:16px}
+.account-side-steps{padding-left:20px;color:#496057;line-height:1.65}
+.account-side-steps li+li{margin-top:8px}
+.account-side-link{display:inline-flex;margin-top:8px}
+.favorites-page-actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 22px}
+.favorites-view{display:grid;gap:12px;max-width:900px}
+.favorites-actions{display:flex;flex-direction:column;gap:7px;padding:10px}
+.favorites-actions button{border:0;border-radius:10px;padding:9px 11px;background:#eef5f1;color:#123d32;font:inherit;font-size:.77rem;font-weight:850;cursor:pointer}
+.favorites-actions .fav-remove{background:#fff1ef;color:#9b4139}
+.favorites-page .pagehero p{max-width:700px}
+.origen-home-tools .planner-home-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:850px}
+.suite-home{display:none!important}
+@media(max-width:850px){
+  #nav.open .nav-more{width:100%}
+  #nav.open .nav-more>summary{padding:12px;border-radius:12px}
+  #nav.open .nav-more-menu{position:static;min-width:0;margin:4px 0 0;padding:5px 8px;border:0;border-radius:12px;box-shadow:none;background:#f8fbf9}
+  #nav.open .nav-more-menu a{padding:10px 12px}
+  #nav .nav-trip{border-radius:12px}
+  .auth-shell:has(.account-dashboard){grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .account-shortcuts{grid-template-columns:1fr}
+  .account-shortcut{padding:14px}
+  .origen-home-tools .planner-home-grid{grid-template-columns:1fr}
+}
