@@ -3,5 +3,5 @@
    La anonKey es pública por diseño; NUNCA pongas aquí service_role ni claves de Resend. */
 window.ORIGEN_SUPABASE={
   url:'https://xqobpvvpyjtcrfdznbwq.supabase.co',
-  anonKey:''
+  anonKey:'sb_publishable_vQXu47Tudf01FWPE5utuvg_0WyDxBJ5'
 };
