@@ -11,14 +11,20 @@ const initials=name=>String(name||'O').trim().split(/\s+/).slice(0,2).map(x=>x[0
 const setStatus=(msg,error=false)=>{const el=document.querySelector('#auth-status');if(!el)return;el.textContent=msg;el.className='auth-status show'+(error?' error':'');};
 const clearStatus=()=>{const el=document.querySelector('#auth-status');if(el)el.className='auth-status';};
 function ensureNav(){
-  if(!nav||document.querySelector('#auth-nav'))return;
-  const a=document.createElement('a');a.id='auth-nav';a.className='nav-account';a.href='#/cuenta';a.textContent='Crear usuario';
-  const ig=nav.querySelector('.ig');if(ig)nav.insertBefore(a,ig);else nav.appendChild(a);
+  if(!nav)return;
+  if(!document.querySelector('#auth-nav')){
+    const a=document.createElement('a');a.id='auth-nav';a.className='nav-account';a.href='#/cuenta';a.textContent='Cuenta';
+    const ig=nav.querySelector(':scope > .ig');if(ig)nav.insertBefore(a,ig);else nav.appendChild(a);
+  }
 }
 function updateNav(){
   ensureNav();const a=document.querySelector('#auth-nav');if(!a)return;
-  const name=currentUser?.user_metadata?.display_name||currentUser?.user_metadata?.name;
-  a.textContent=currentUser?(name?name.split(/\s+/)[0]:'Mi cuenta'):'Crear usuario';
+  let favoritesLink=document.querySelector('#favorites-nav');
+  if(currentUser&&!favoritesLink){
+    favoritesLink=document.createElement('a');favoritesLink.id='favorites-nav';favoritesLink.href='#/favoritos';favoritesLink.textContent='Favoritos';
+    nav.insertBefore(favoritesLink,a);
+  }else if(!currentUser&&favoritesLink)favoritesLink.remove();
+  a.textContent=currentUser?'Mi ORIGEN':'Cuenta';
 }
 function shell(inner,side){
   app.innerHTML=`<section class="pagehero"><div class="wrap"><span class="tag">Cuenta ORIGEN</span><h1>${currentUser?'Tu cuenta':'Crea tu cuenta ORIGEN'}</h1><p>${currentUser?'Gestiona tu perfil y tus preferencias de correo.':'Guarda tu acceso y recibe novedades, rutas y contenido de ORIGEN por correo.'}</p></div></section><section class="section auth-page"><div class="wrap auth-shell"><div class="auth-card">${inner}<div id="auth-status" class="auth-status"></div></div><aside class="auth-side">${side}</aside></div></section>`;
@@ -71,7 +77,26 @@ function renderProfile(){
   const meta=currentUser?.user_metadata||{};
   const name=meta.display_name||meta.name||'Viajero ORIGEN';
   const marketing=Boolean(meta.marketing_opt_in);
-  shell(`<div class="auth-profile"><div class="auth-profile-head"><div class="auth-avatar">${esc(initials(name))}</div><div><h2>${esc(name)}</h2><div class="auth-email">${esc(currentUser?.email||'')}</div></div></div><div class="auth-kpis"><div class="auth-kpi"><small>Estado</small><b>Sesión iniciada</b></div><div class="auth-kpi"><small>Correo</small><b>${currentUser?.email_confirmed_at?'Verificado':'Pendiente'}</b></div></div><form id="profile-form" class="auth-form"><div class="auth-field"><label for="profile-name">Nombre</label><input id="profile-name" value="${esc(name)}" required></div><label class="auth-check"><input id="profile-marketing" type="checkbox" ${marketing?'checked':''}><span>Quiero recibir novedades, rutas, panoramas y contenido de ORIGEN por correo.</span></label><div class="auth-row"><button class="auth-submit" type="submit">Guardar cambios</button><button id="auth-password" class="auth-secondary" type="button">Cambiar contraseña</button><button id="auth-logout" class="auth-danger" type="button">Cerrar sesión</button></div></form></div>`,`<h2>Tu cuenta</h2><p>Esta cuenta ya puede servir como base para guardar favoritos, viajes y preferencias en futuras mejoras de ORIGEN.</p><p class="auth-note">Los correos promocionales solo se deberían enviar a quienes hayan activado expresamente esta opción.</p>`);
+  const favoriteCount=window.ORIGEN_TRIP?.favorites?.().length||0;
+  const tripCount=window.ORIGEN_TRIP?.trip?.().length||0;
+  shell(`<div class="account-dashboard">
+    <section class="account-welcome">
+      <div class="auth-profile-head"><div class="auth-avatar">${esc(initials(name))}</div><div><h2>Hola, ${esc(name)}</h2><p>Tu espacio para preparar el próximo viaje.</p></div></div>
+      <div class="auth-kpis"><div class="auth-kpi"><small>Cuenta</small><b>Sesión iniciada</b></div><div class="auth-kpi"><small>Correo</small><b>${currentUser?.email_confirmed_at?'Verificado':'Pendiente'}</b></div></div>
+    </section>
+    <section class="account-shortcuts" aria-label="Accesos de viaje">
+      <a class="account-shortcut" href="#/favoritos"><span class="account-shortcut-icon">♡</span><span><b>Mis favoritos</b><small>${favoriteCount} ${favoriteCount===1?'lugar guardado':'lugares guardados'}</small></span><span class="account-shortcut-arrow">→</span></a>
+      <a class="account-shortcut" href="#/mi-viaje"><span class="account-shortcut-icon">⌖</span><span><b>Armar una ruta</b><small>${tripCount} ${tripCount===1?'parada':'paradas'} en Mi Viaje</small></span><span class="account-shortcut-arrow">→</span></a>
+    </section>
+    <p class="account-local-note">Tus favoritos y rutas se guardan en este dispositivo.</p>
+    <details class="account-settings"><summary>Editar perfil y preferencias</summary>
+      <form id="profile-form" class="auth-form">
+        <div class="auth-field"><label for="profile-name">Nombre</label><input id="profile-name" value="${esc(name)}" required></div>
+        <label class="auth-check"><input id="profile-marketing" type="checkbox" ${marketing?'checked':''}><span>Quiero recibir novedades, rutas, panoramas y contenido de ORIGEN por correo.</span></label>
+        <div class="auth-row"><button class="auth-submit" type="submit">Guardar cambios</button><button id="auth-password" class="auth-secondary" type="button">Cambiar contraseña</button><button id="auth-logout" class="auth-danger" type="button">Cerrar sesión</button></div>
+      </form>
+    </details>
+  </div>`,`<h2>Tu viaje, en pocos pasos</h2><ol class="account-side-steps"><li>Explora un destino y guárdalo en favoritos.</li><li>Elige tus favoritos y agrégalos a Mi Viaje.</li><li>Ordena las paradas y revisa el itinerario.</li></ol><a class="auth-submit account-side-link" href="#/explorar">Explorar destinos →</a>`);
   document.querySelector('#profile-form').onsubmit=async e=>{
     e.preventDefault();clearStatus();
     const display_name=document.querySelector('#profile-name').value.trim();
