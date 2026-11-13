@@ -49,6 +49,8 @@
   .auth-shell:has(.account-dashboard){grid-template-columns:1fr}
 }
 @media(max-width:560px){
+  .favorites-actions{grid-column:1/-1;flex-direction:row;padding:0 10px 10px}
+  .favorites-actions button{flex:1}
   .account-shortcuts{grid-template-columns:1fr}
   .account-shortcut{padding:14px}
   .origen-home-tools .planner-home-grid{grid-template-columns:1fr}
