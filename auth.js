@@ -4,6 +4,7 @@ const nav=document.querySelector('#nav');
 const cfg=window.ORIGEN_SUPABASE||{};
 const configured=()=>Boolean(cfg.url&&cfg.anonKey&&window.supabase?.createClient);
 const client=configured()?window.supabase.createClient(cfg.url,cfg.anonKey):null;
+window.ORIGEN_SUPABASE_CLIENT=client;
 let currentUser=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const rootUrl=()=>location.origin+location.pathname;
