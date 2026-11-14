@@ -76,7 +76,7 @@ with (security_invoker = true)
 as
   select id, place_id, place_name, public_photo_path, created_at
   from public.passport_visits
-  where status = 'approved' and public_photo_path is not null;
+  where status = 'approved' and use_consent = true and public_photo_path is not null;
 
 grant select on public.passport_public_stamps to anon, authenticated;
 
@@ -122,6 +122,18 @@ create policy "passport owner deletes private photo" on storage.objects
 drop policy if exists "passport admin publishes approved photo" on storage.objects;
 create policy "passport admin publishes approved photo" on storage.objects
   for insert to authenticated
+  with check (
+    bucket_id = 'passport-gallery'
+    and public.is_origen_admin()
+  );
+
+drop policy if exists "passport admin updates gallery photo" on storage.objects;
+create policy "passport admin updates gallery photo" on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'passport-gallery'
+    and public.is_origen_admin()
+  )
   with check (
     bucket_id = 'passport-gallery'
     and public.is_origen_admin()
