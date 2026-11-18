@@ -124,7 +124,7 @@ async function activate(user){
       cloud[k]=valid(k,fromTable[kind])?fromTable[kind]:valid(k,meta[kind])?meta[kind]:undefined;
     }
     const flag=MIGRATION+id;
-    const migrating=storage.text(flag)!=='1';
+    const migrating=KEYS.some(k=>storage.get(k)!==undefined);
     for(const k of KEYS){
       const local=storage.get(accountKey(k,id));
       const legacy=migrating?storage.get(k):undefined;
