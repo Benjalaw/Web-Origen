@@ -80,6 +80,7 @@ function renderProfile(){
   const marketing=Boolean(meta.marketing_opt_in);
   const favoriteCount=window.ORIGEN_TRIP?.favorites?.().length||0;
   const tripCount=window.ORIGEN_TRIP?.trip?.().length||0;
+  const syncNote=window.ORIGEN_SAVED_SYNC?.status?.()||'Conectando favoritos y rutas con tu cuenta…';
   shell(`<div class="account-dashboard">
     <section class="account-welcome">
       <div class="auth-profile-head"><div class="auth-avatar">${esc(initials(name))}</div><div><h2>Hola, ${esc(name)}</h2><p>Tu espacio para preparar el próximo viaje.</p></div></div>
@@ -89,16 +90,16 @@ function renderProfile(){
       <a class="account-shortcut" href="#/favoritos"><span class="account-shortcut-icon">♡</span><span><b>Mis favoritos</b><small>${favoriteCount} ${favoriteCount===1?'lugar guardado':'lugares guardados'}</small></span><span class="account-shortcut-arrow">→</span></a>
       <a class="account-shortcut" href="#/mi-viaje"><span class="account-shortcut-icon">⌖</span><span><b>Armar una ruta</b><small>${tripCount} ${tripCount===1?'parada':'paradas'} en Mi Viaje</small></span><span class="account-shortcut-arrow">→</span></a>
     </section>
-    <p class="account-local-note">Tus favoritos y rutas se guardan en este dispositivo.</p>
+    <p class="account-local-note" id="account-sync-note" role="status">${esc(syncNote)}</p>
     <details class="account-settings"><summary>Editar perfil y preferencias</summary>
-      <form id="profile-form" class="auth-form">
+      <form id="auth-profile-form" class="auth-form">
         <div class="auth-field"><label for="profile-name">Nombre</label><input id="profile-name" value="${esc(name)}" required></div>
         <label class="auth-check"><input id="profile-marketing" type="checkbox" ${marketing?'checked':''}><span>Quiero recibir novedades, rutas, panoramas y contenido de ORIGEN por correo.</span></label>
         <div class="auth-row"><button class="auth-submit" type="submit">Guardar cambios</button><button id="auth-password" class="auth-secondary" type="button">Cambiar contraseña</button><button id="auth-logout" class="auth-danger" type="button">Cerrar sesión</button></div>
       </form>
     </details>
   </div>`,`<h2>Tu viaje, en pocos pasos</h2><ol class="account-side-steps"><li>Explora un destino y guárdalo en favoritos.</li><li>Elige tus favoritos y agrégalos a Mi Viaje.</li><li>Ordena las paradas y revisa el itinerario.</li></ol><a class="auth-submit account-side-link" href="#/explorar">Explorar destinos →</a>`);
-  document.querySelector('#profile-form').onsubmit=async e=>{
+  document.querySelector('#auth-profile-form').onsubmit=async e=>{
     e.preventDefault();clearStatus();
     const display_name=document.querySelector('#profile-name').value.trim();
     const marketing_opt_in=document.querySelector('#profile-marketing').checked;
@@ -129,5 +130,12 @@ async function init(){
   if(location.hash.startsWith('#/cuenta'))setTimeout(render,0);
 }
 addEventListener('hashchange',()=>setTimeout(render,0));
+addEventListener('origen:saved-status',event=>{
+  const el=document.querySelector('#account-sync-note');
+  if(el&&(!event.detail?.userId||event.detail.userId===currentUser?.id))el.textContent=event.detail.message;
+});
+addEventListener('origen:saved-loaded',()=>{
+  if(currentUser&&location.hash.startsWith('#/cuenta'))renderProfile();
+});
 init();
 })();
