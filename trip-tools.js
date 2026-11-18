@@ -2,8 +2,9 @@
 const FKEY='origen_favorites_v2',TKEY='origen_trip_v2',SKEY='origen_trip_settings_v2';
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’‘]/g,"'").toLowerCase().trim();
-const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))||f}catch{return f}};
-const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const storageKey=k=>window.ORIGEN_SAVED_SYNC?.keyFor?.(k)||k;
+const load=(k,f)=>{try{const raw=localStorage.getItem(storageKey(k));return raw===null?f:(JSON.parse(raw)??f)}catch{return f}};
+const save=(k,v)=>{try{localStorage.setItem(storageKey(k),JSON.stringify(v))}catch{};window.ORIGEN_SAVED_SYNC?.changed?.(k,v)};
 const P=()=>window.P||[];
 const T=()=>window.ORI_TRAVEL||{cities:{},places:{}};
 const SVC=()=>window.ORI_SERVICES||{cities:{}};
@@ -11,8 +12,8 @@ const money=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',ma
 const hav=(a,b)=>{if(!a||!b||!Number.isFinite(a.lat)||!Number.isFinite(b.lat))return null;const R=6371,t=x=>x*Math.PI/180,d1=t(b.lat-a.lat),d2=t(b.lon-a.lon),l1=t(a.lat),l2=t(b.lat),h=Math.sin(d1/2)**2+Math.cos(l1)*Math.cos(l2)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const roadKm=(a,b)=>{const d=hav(a,b);return d==null?0:Math.round(d*(d<40?1.35:d<180?1.23:1.18)/5)*5};
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-function favorites(){return load(FKEY,[])}
-function trip(){return load(TKEY,[])}
+function favorites(){const a=load(FKEY,[]);return Array.isArray(a)?a.map(hydrateSavedItem).filter(Boolean):[]}
+function trip(){const a=load(TKEY,[]);return Array.isArray(a)?a.map(hydrateSavedItem).filter(Boolean):[]}
 function settings(){return Object.assign({origin:'',days:3,people:2,transport:'auto',style:'medio',kmpl:12,fuel:1350,tolls:0,manualTransport:0},load(SKEY,{}))}
 function setFavorites(v){save(FKEY,v);window.dispatchEvent(new CustomEvent('origen:favorites'))}
 function setTrip(v){save(TKEY,v);window.dispatchEvent(new CustomEvent('origen:trip'))}
@@ -22,14 +23,21 @@ function coordForCity(name){const d=T().cities?.[name];return d?{lat:d.lat,lon:d
 function placeItem(p){const c=coordForPlace(p.id);return{key:`place:${p.id}`,type:'place',id:p.id,name:p.name,region:p.region,href:`#/lugar/${p.id}`,image:p.image||'',lead:p.lead||'',interests:p.interests||[],lat:c?.lat,lon:c?.lon}}
 function volcanoItem(v){return{key:`volcano:${v.rank}`,type:'volcano',id:String(v.rank),name:v.name,region:v.region,href:`#/volcan/${v.rank}`,image:window.getVolcanoImage?window.getVolcanoImage(v.name):'',lead:v.history||'',interests:['volcanes']}}
 function serviceItem(city,x){const cd=T().cities?.[city];return{key:`service:${slug(city)}:${slug(x.name)}`,type:'service',id:`${city}:${x.name}`,name:x.name,region:SVC().cities?.[city]?.region||'',city,href:`#/servicios?city=${encodeURIComponent(city)}`,image:'',lead:x.why||'',serviceType:x.type||'',lat:cd?.lat,lon:cd?.lon}}
+function hydrateSavedItem(x){
+ if(!x||!x.key)return null;
+ if(x.type==='place'){const p=P().find(p=>p.id===x.id);if(p)return{...x,...placeItem(p)}}
+ if(x.type==='volcano'){const v=(typeof V!=='undefined'?V:[]).find(v=>String(v.rank)===String(x.id));if(v)return{...x,...volcanoItem(v)}}
+ if(x.type==='service'){const city=x.city||String(x.id||'').split(':')[0];const obj=(SVC().cities?.[city]?.items||[]).find(v=>v.name===x.name);if(obj)return{...x,...serviceItem(city,obj)}}
+ return x;
+}
 function isFav(key){return favorites().some(x=>x.key===key)}
 function inTrip(key){return trip().some(x=>x.key===key)}
 function toggleFavorite(item){let a=favorites();const on=a.some(x=>x.key===item.key);a=on?a.filter(x=>x.key!==item.key):[...a,item];setFavorites(a);return!on}
 function addToTrip(item){let a=trip();if(!a.some(x=>x.key===item.key)){a.push(item);setTrip(a);return true}return false}
 function removeTrip(key){setTrip(trip().filter(x=>x.key!==key))}
 function buttonLabel(item){return isFav(item.key)?'♥ Guardado':'♡ Guardar'}
-function saveButton(item,small=false){const b=document.createElement('button');b.type='button';b.className=`origen-save-btn${small?' compact':''}${isFav(item.key)?' saved':''}`;b.textContent=buttonLabel(item);b.title='Guardar en Favoritos';b.onclick=e=>{e.preventDefault();e.stopPropagation();const on=toggleFavorite(item);b.classList.toggle('saved',on);b.textContent=on?'♥ Guardado':'♡ Guardar'};return b}
-function tripButton(item){const b=document.createElement('button');b.type='button';b.className=`origen-trip-btn${inTrip(item.key)?' added':''}`;b.textContent=inTrip(item.key)?'✓ En Mi Viaje':'+ Mi Viaje';b.onclick=e=>{e.preventDefault();e.stopPropagation();if(addToTrip(item)){b.classList.add('added');b.textContent='✓ En Mi Viaje'}else{location.hash='#/mi-viaje'}};return b}
+function saveButton(item,small=false){const b=document.createElement('button');b.type='button';b.dataset.savedKey=item.key;b.className=`origen-save-btn${small?' compact':''}${isFav(item.key)?' saved':''}`;b.textContent=buttonLabel(item);b.title='Guardar en Favoritos';b.onclick=e=>{e.preventDefault();e.stopPropagation();const on=toggleFavorite(item);b.classList.toggle('saved',on);b.textContent=on?'♥ Guardado':'♡ Guardar'};return b}
+function tripButton(item){const b=document.createElement('button');b.type='button';b.dataset.tripKey=item.key;b.className=`origen-trip-btn${inTrip(item.key)?' added':''}`;b.textContent=inTrip(item.key)?'✓ En Mi Viaje':'+ Mi Viaje';b.onclick=e=>{e.preventDefault();e.stopPropagation();if(addToTrip(item)){b.classList.add('added');b.textContent='✓ En Mi Viaje'}else{location.hash='#/mi-viaje'}};return b}
 function enhanceCards(){
  document.querySelectorAll('a.place-card[href^="#/lugar/"]').forEach(a=>{if(a.dataset.tripEnhanced)return;a.dataset.tripEnhanced='1';const id=a.getAttribute('href').split('/').pop(),p=P().find(x=>x.id===id);if(!p)return;const wrap=document.createElement('div');wrap.className='origen-card-actions';wrap.append(saveButton(placeItem(p),true));a.append(wrap)});
  document.querySelectorAll('a.place-card[href^="#/volcan/"]').forEach(a=>{if(a.dataset.tripEnhanced)return;a.dataset.tripEnhanced='1';const rank=a.getAttribute('href').split('/').pop(),v=(typeof V!=='undefined'?V:[]).find(x=>String(x.rank)===String(rank));if(!v)return;const wrap=document.createElement('div');wrap.className='origen-card-actions';wrap.append(saveButton(volcanoItem(v),true));a.append(wrap)});
@@ -80,6 +88,18 @@ function homeTools(){const route=location.hash||'#/';if((route!=='#/'&&route!=='
 function renderRoute(){if(location.hash.startsWith('#/favoritos'))setTimeout(favoritesView,0);else if(location.hash.startsWith('#/mi-viaje'))setTimeout(planner,0);else if(location.hash.startsWith('#/comparar'))setTimeout(compare,0);else setTimeout(()=>{homeTools();enhanceCards();detailActions()},80)}
 const observer=new MutationObserver(()=>{if(location.hash.startsWith('#/mi-viaje')||location.hash.startsWith('#/comparar'))return;requestAnimationFrame(()=>{homeTools();enhanceCards();detailActions()})});
 observer.observe(document.querySelector('#app'),{childList:true,subtree:true});
-addEventListener('hashchange',renderRoute);addEventListener('origen:favorites',enhanceCards);renderRoute();
+function refreshSavedButtons(){
+ document.querySelectorAll('.origen-save-btn[data-saved-key]').forEach(b=>{const on=isFav(b.dataset.savedKey);b.classList.toggle('saved',on);b.textContent=on?'♥ Guardado':'♡ Guardar'});
+ document.querySelectorAll('.origen-trip-btn[data-trip-key]').forEach(b=>{const on=inTrip(b.dataset.tripKey);b.classList.toggle('added',on);b.textContent=on?'✓ En Mi Viaje':'+ Mi Viaje'});
+}
+addEventListener('hashchange',renderRoute);
+addEventListener('origen:favorites',()=>{enhanceCards();refreshSavedButtons()});
+addEventListener('origen:trip',refreshSavedButtons);
+addEventListener('origen:saved-loaded',()=>{
+ if(location.hash.startsWith('#/favoritos'))favoritesView();
+ else if(location.hash.startsWith('#/mi-viaje'))planner();
+ refreshSavedButtons();
+});
+renderRoute();
 window.ORIGEN_TRIP={favorites,trip,settings,addToTrip,toggleFavorite,placeItem,serviceItem,budget,planner,favoritesView};
 })();
